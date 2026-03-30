@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparativa Energética Editable - OPTIMIZARE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --optimizare-dark: #1B4332; 
+            --optimizare-accent: #2D6A4F;
+            --optimizare-light: #D8E2DC;
+            --soft-bg: #F8FAF9;
+            --text-dark: #1A1C1B;
+            --text-gray: #5F6368;
+            --border-color: #E0E4E2;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #F0F2F5;
+            display: flex;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .page {
+            width: 210mm;
+            height: 297mm;
+            background: white;
+            padding: 18mm;
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: relative;
+            color: var(--text-dark);
+        }
+
+        @media print {
+            body { background: none; padding: 0; }
+            .page { margin: 0; box-shadow: none; border: none; }
+            input { border: none !important; background: transparent !important; appearance: none; }
+            .no-print { display: none; }
+        }
+
+        /* Cabecera */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 3px solid var(--optimizare-dark);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        .header-left img {
+            height: 50px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .header-left h1 {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--optimizare-dark);
+            font-size: 20pt;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .header-right {
+            text-align: right;
+            font-size: 9pt;
+            line-height: 1.6;
+            color: var(--text-gray);
+        }
+
+        .header-right input {
+            border: none;
+            border-bottom: 1px dashed #ccc;
+            text-align: right;
+            font-family: inherit;
+            color: var(--text-dark);
+            font-weight: 700;
+            width: 150px;
+        }
+
+        /* Secciones */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            background: var(--optimizare-dark);
+            color: white;
+            padding: 5px 14px;
+            font-size: 9pt;
+            font-weight: 700;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .section-title.proposed {
+            background: var(--optimizare-accent);
+        }
+
+        .total-badge {
+            font-size: 10pt;
+            font-weight: 700;
+            color: var(--optimizare-dark);
+        }
+
+        /* Tarjetas */
+        .card {
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 25px;
+            background: #fff;
+        }
+
+        /* Tablas e Inputs */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 8.5pt;
+            margin-bottom: 15px;
+        }
+
+        th {
+            background: #f1f3f2;
+            color: var(--optimizare-dark);
+            padding: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 4px;
+            border: 1px solid var(--border-color);
+            text-align: right;
+        }
+
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            border: 1px solid transparent;
+            padding: 4px;
+            text-align: right;
+            font-size: 8.5pt;
+            font-family: inherit;
+            color: inherit;
+        }
+
+        input[type="number"]:hover, input[type="text"]:hover {
+            border-color: #ddd;
+            background: #fffef0;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--optimizare-accent);
+            background: #fff;
+        }
+
+        .row-label {
+            text-align: left;
+            background: #fafafa;
+            font-weight: 600;
+            width: 25%;
+            padding-left: 8px;
+        }
+
+        /* Resumen de costos */
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .summary-box {
+            padding: 10px;
+            border-radius: 3px;
+            background: var(--soft-bg);
+            border-left: 3px solid var(--optimizare-accent);
+            text-align: center;
+        }
+
+        .summary-box span {
+            display: block;
+            font-size: 7pt;
+            text-transform: uppercase;
+            color: var(--text-gray);
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .summary-box .price-input {
+            font-size: 11pt;
+            font-weight: 700;
+            color: var(--optimizare-dark);
+            background: transparent;
+            width: 100%;
+            border: none;
+            text-align: center;
+        }
+
+        /* Bloque de Ahorro */
+        .impact-container {
+            margin-top: auto;
+            background: var(--optimizare-dark);
+            border-radius: 4px;
+            padding: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .impact-data {
+            display: flex;
+            gap: 50px;
+        }
+
+        .data-point .label {
+            font-size: 9pt;
+            color: #A7C4B5;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .data-point .value {
+            font-size: 24pt;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .percentage-circle {
+            background: white;
+            color: var(--optimizare-dark);
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            border: 4px solid var(--optimizare-accent);
+        }
+
+        .percentage-circle .num { font-size: 18pt; line-height: 1; }
+        .percentage-circle .txt { font-size: 7pt; margin-top: 2px; }
+
+        .footer {
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            font-size: 8pt;
+            color: var(--text-gray);
+        }
+    </style>
+</head>
+<body>
+
+<div class="page">
+    <!-- Cabecera -->
+    <div class="header">
+        <div class="header-left">
+            <img src="logo sin fondo.png" alt="OPTIMIZARE Logo">
+            <h1>Comparativa Energética</h1>
+        </div>
+        <div class="header-right">
+            <div><strong>Día de la oferta:</strong> <input type="text" value="20/10/2025"></div>
+            <div><strong>Cliente:</strong> <input type="text" value="Gorosetxe Sl"></div>
+            <div><input type="text" value="Ander Deuna Kalea, 2, BAJO 2bizkaia, Usansolo" style="width: 250px;"></div>
+        </div>
+    </div>
+
+    <!-- Sección 1: Factura Actual -->
+    <div class="section-header">
+        <div class="section-title">Análisis Situación Actual</div>
+        <div class="total-badge">FACTURA MES: <span id="display-total-actual">2.205,29</span> €</div>
+    </div>
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Conceptos (€/ud)</th>
+                    <th>P1</th>
+                    <th>P2</th>
+                    <th>P3</th>
+                    <th>P4</th>
+                    <th>P5</th>
+                    <th>P6</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="row-label">Potencia</td>
+                    <td><input type="number" step="0.000001" value="0.075777" class="calc-actual"></td>
+                    <td><input type="number" step="0.000001" value="0.050004" class="calc-actual"></td>
+                    <td><input type="number" step="0.000001" value="0.033596" class="calc-actual"></td>
+                    <td><input type="number" step="0.000001" value="0.032005" class="calc-actual"></td>
+                    <td><input type="number" step="0.000001" value="0.028297" class="calc-actual"></td>
+                    <td><input type="number" step="0.000001" value="0.025634" class="calc-actual"></td>
+                </tr>
+                <tr>
+                    <td class="row-label">Energía</td>
+                    <td><input type="number" step="0.000001" value="0.236486" class="calc-actual"></td>
+                    <td><input type="number" step="0.000001" value="0.205477" class="calc-actual"></td>
+                    <td><input type="number" step="0.000001" value="0.156953" class="calc-actual"></td>
+                    <td><input type="number" step="0.000001" value="0.160226" class="calc-actual"></td>
+                    <td><input type="number" step="0.000001" value="0.136547" class="calc-actual"></td>
+                    <td><input type="number" step="0.000001" value="0.145722" class="calc-actual"></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="summary-row">
+            <div class="summary-box">
+                <span>Energía</span>
+                <input type="number" step="0.01" value="1380.78" class="price-input actual-total-part" id="act-energia">
+            </div>
+            <div class="summary-box">
+                <span>Potencia</span>
+                <input type="number" step="0.01" value="345.24" class="price-input actual-total-part" id="act-potencia">
+            </div>
+            <div class="summary-box">
+                <span>Impuestos</span>
+                <input type="number" step="0.01" value="88.25" class="price-input actual-total-part" id="act-impuestos">
+            </div>
+            <div class="summary-box">
+                <span>Otros</span>
+                <input type="number" step="0.01" value="8.27" class="price-input actual-total-part" id="act-otros">
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección 2: Oferta Propuesta -->
+    <div class="section-header">
+        <div class="section-title proposed">Propuesta de Optimización: Candela Premium</div>
+        <div class="total-badge" style="color: var(--optimizare-accent);">TOTAL PROPUESTO: <span id="display-total-propuesto">1.821,67</span> €</div>
+    </div>
+    <div class="card" style="border-color: var(--optimizare-accent);">
+        <table>
+            <thead>
+                <tr>
+                    <th style="background: var(--optimizare-accent); color: white;">Conceptos Propuesta</th>
+                    <th style="background: var(--optimizare-accent); color: white;">P1</th>
+                    <th style="background: var(--optimizare-accent); color: white;">P2</th>
+                    <th style="background: var(--optimizare-accent); color: white;">P3</th>
+                    <th style="background: var(--optimizare-accent); color: white;">P4</th>
+                    <th style="background: var(--optimizare-accent); color: white;">P5</th>
+                    <th style="background: var(--optimizare-accent); color: white;">P6</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="row-label">Potencia</td>
+                    <td><input type="number" step="0.000001" value="0.075777"></td>
+                    <td><input type="number" step="0.000001" value="0.050005"></td>
+                    <td><input type="number" step="0.000001" value="0.033596"></td>
+                    <td><input type="number" step="0.000001" value="0.032004"></td>
+                    <td><input type="number" step="0.000001" value="0.028296"></td>
+                    <td><input type="number" step="0.000001" value="0.025634"></td>
+                </tr>
+                <tr>
+                    <td class="row-label">Energía 24h</td>
+                    <td colspan="6" style="text-align: center; background: #fdfdfd;">
+                        Precio Fijo (€/kWh): <input type="number" step="0.000001" value="0.115236" style="width: 100px; font-weight: 700; display: inline-block; text-align: left;">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="summary-row">
+            <div class="summary-box" style="border-left-color: var(--optimizare-dark);">
+                <span>Energía</span>
+                <input type="number" step="0.01" value="1079.19" class="price-input prop-total-part" id="prop-energia">
+            </div>
+            <div class="summary-box" style="border-left-color: var(--optimizare-dark);">
+                <span>Potencia</span>
+                <input type="number" step="0.01" value="345.23" class="price-input prop-total-part" id="prop-potencia">
+            </div>
+            <div class="summary-box" style="border-left-color: var(--optimizare-dark);">
+                <span>Impuestos</span>
+                <input type="number" step="0.01" value="72.83" class="price-input prop-total-part" id="prop-impuestos">
+            </div>
+            <div class="summary-box" style="background: #EBF7F1; border-left-color: var(--optimizare-accent);">
+                <span>Ahorro Mes</span>
+                <div class="price-input" style="color: var(--optimizare-accent); font-weight: 700; padding-top: 4px;" id="prop-ahorro-mes">383,62 €</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bloque de Ahorro Final -->
+    <div class="impact-container">
+        <div class="impact-data">
+            <div class="data-point">
+                <div class="label">Ahorro en esta factura</div>
+                <div class="value" id="final-ahorro-mes">383,62 €</div>
+            </div>
+            <div style="width: 1px; background: rgba(255,255,255,0.2);"></div>
+            <div class="data-point">
+                <div class="label">Ahorro Anual Estimado</div>
+                <div class="value" id="final-ahorro-anual">4.603,44 €</div>
+            </div>
+        </div>
+        
+        <div class="percentage-circle">
+            <div class="num" id="final-ahorro-pct">17%</div>
+            <div class="txt">GLOBAL</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div><strong>OPTIMIZARE</strong> | Eficiencia Energética Interactiva</div>
+        <div class="no-print" style="color: var(--optimizare-accent); font-weight: 700;">* Los campos son editables. El ahorro se calcula automáticamente.</div>
+    </div>
+</div>
+
+<script>
+    function updateCalculations() {
+        // Obtener sumas actuales
+        const actEnergia = parseFloat(document.getElementById('act-energia').value) || 0;
+        const actPotencia = parseFloat(document.getElementById('act-potencia').value) || 0;
+        const actImpuestos = parseFloat(document.getElementById('act-impuestos').value) || 0;
+        const actOtros = parseFloat(document.getElementById('act-otros').value) || 0;
+        const totalActual = actEnergia + actPotencia + actImpuestos + actOtros;
+        
+        document.getElementById('display-total-actual').innerText = totalActual.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+        // Obtener sumas propuestas
+        const propEnergia = parseFloat(document.getElementById('prop-energia').value) || 0;
+        const propPotencia = parseFloat(document.getElementById('prop-potencia').value) || 0;
+        const propImpuestos = parseFloat(document.getElementById('prop-impuestos').value) || 0;
+        const totalPropuesto = propEnergia + propPotencia + propImpuestos;
+
+        document.getElementById('display-total-propuesto').innerText = totalPropuesto.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+        // Calcular Ahorros
+        const ahorroMensual = totalActual - totalPropuesto;
+        const ahorroAnual = ahorroMensual * 12;
+        const ahorroPct = totalActual > 0 ? (ahorroMensual / totalActual) * 100 : 0;
+
+        // Actualizar UI de Ahorro
+        document.getElementById('prop-ahorro-mes').innerText = ahorroMensual.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
+        document.getElementById('final-ahorro-mes').innerText = ahorroMensual.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
+        document.getElementById('final-ahorro-anual').innerText = ahorroAnual.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
+        document.getElementById('final-ahorro-pct').innerText = Math.round(ahorroPct) + '%';
+    }
+
+    // Añadir listeners a todos los inputs numéricos relevantes
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+        input.addEventListener('input', updateCalculations);
+    });
+
+    // Ejecutar cálculo inicial
+    window.onload = updateCalculations;
+</script>
+
+</body>
+</html>
