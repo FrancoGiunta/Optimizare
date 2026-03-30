@@ -1,400 +1,746 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=210mm, height=297mm, initial-scale=1" />
-<title>Comparativa factura - A4</title>
-<style>
-  /* === Página A4 y reglas de impresión === */
-  @page {
-    size: A4;
-    margin: 12mm;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Propuesta Comercial - OPTIMIZARE</title>
+    <style>
+        /* RESET & BASE */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* BRAND VARIABLES */
+        :root {
+            --brand-primary: #185633; /* Verde oscuro del logo OPTIMIZARE */
+            --brand-secondary: #4CAF50; /* Verde claro para contraste en gráficos */
+            --brand-light: #f1f8e9; /* Fondo suave para campos calculados */
+        }
 
-  html, body {
-    margin: 0;
-    padding: 0;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-    background: #f0f0f0;
-    font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
-    color: #222;
-  }
+        body {
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #1a1a1a;
+            padding: 20px;
+        }
 
-  /* Contenedor que representa la hoja A4 */
-  .page {
-    width: 210mm;
-    height: 297mm;
-    box-sizing: border-box;
-    margin: 12mm auto;
-    padding: 12mm;
-    background: #fff;
-    border: 1px solid #e6e9ec;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-    overflow: hidden;
-  }
+        /* A4 CONTAINER */
+        .page-container {
+            width: 794px;
+            height: 1123px;
+            background-color: #ffffff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+            padding: 25px 35px;
+            font-size: 7px;
+            overflow: hidden;
+        }
 
-  /* Grid: 12 columnas (simple flex-based) */
-  .row { display:flex; flex-wrap:wrap; margin-left:-8px; margin-right:-8px; }
-  .col { padding-left:8px; padding-right:8px; box-sizing:border-box; }
-  .col-12 { width:100%; }
-  .col-7 { width:58.3333%; }
-  .col-5 { width:41.6667%; }
-  .col-6 { width:50%; }
+        /* PRINT STYLES */
+        @media print {
+            body { background-color: transparent; padding: 0; align-items: flex-start; }
+            .page-container { box-shadow: none; margin: 0; width: 100%; height: 100%; page-break-after: avoid; }
+        }
 
-  /* Header */
-  .header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; }
-  .logo { display:flex; align-items:center; gap:10px; }
-  .logo img { height:42px; width:auto; }
-  .client { text-align:right; font-size:11px; color:#444; }
-  .offer-date { font-weight:600; color:#0B4A6F; font-size:13px; }
+        /* UTILITIES */
+        .flex { display: flex; }
+        .flex-row { flex-direction: row; }
+        .flex-col { flex-direction: column; }
+        .justify-between { justify-content: space-between; }
+        .align-center { align-items: center; }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .text-brand { color: var(--brand-primary); }
+        .font-bold { font-weight: bold; }
+        .w-full { width: 100%; }
 
-  /* Card / panel */
-  .card { border:1px solid #E3E6EA; border-radius:6px; padding:10px; background:#fff; box-shadow:0 1px 0 rgba(0,0,0,0.02); }
-  .card-title { font-weight:600; color:#0B4A6F; font-size:13px; margin-bottom:8px; }
+        /* INPUTS */
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            font-size: 7px;
+            font-family: inherit;
+            padding: 2px;
+            text-align: center;
+            color: #1a1a1a;
+            border-radius: 2px;
+            outline: none;
+            transition: border 0.2s;
+        }
+        input[type="text"]:focus, input[type="number"]:focus {
+            border-color: var(--brand-secondary);
+        }
+        input.text-left { text-align: left; }
+        input[readonly] {
+            background-color: var(--brand-light);
+            border-color: transparent;
+            font-weight: bold;
+            pointer-events: none;
+        }
+        input.no-bg { background-color: transparent !important; border: none !important; }
 
-  /* Tables */
-  table { width:100%; border-collapse:collapse; font-size:10px; }
-  th, td { padding:6px 8px; border:1px solid #EEF0F2; text-align:right; }
-  th { background:#F7F8FA; color:#333; font-weight:600; font-size:10px; text-align:center; }
-  td.left { text-align:left; }
-  .small { font-size:9px; color:#666; }
+        /* HEADER */
+        .header { margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .logo-container { display: flex; align-items: center; justify-content: center; width: 180px; }
+        .header-info { width: 350px; font-size: 7px; }
+        .header-info-row { display: flex; margin-bottom: 2px; align-items: center; }
+        .header-info-row span { width: 80px; font-weight: bold; }
 
-  /* Totals */
-  .totals { display:flex; gap:12px; margin-top:8px; }
-  .total-card { flex:1; padding:10px; background:#F7F8FA; border-radius:6px; text-align:center; }
-  .total-amount { font-size:18px; font-weight:700; color:#222; }
-  .total-label { font-size:10px; color:#666; margin-top:4px; }
+        /* SECTIONS */
+        .section { margin-bottom: 10px; }
+        .section-title {
+            background-color: var(--brand-primary);
+            color: #fff;
+            padding: 4px 15px;
+            display: inline-block;
+            border-radius: 12px 12px 12px 0;
+            font-size: 8.5px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
 
-  /* Savings block */
-  .savings { margin-top:12px; display:flex; gap:12px; align-items:center; }
-  .savings .big { flex:1; padding:12px; border-radius:6px; background:linear-gradient(90deg,#fff 0,#fff 100%); border:1px solid #E3E6EA; }
-  .savings .big .percent { font-size:28px; font-weight:800; color:#F2A900; }
-  .savings .big .desc { font-size:11px; color:#444; margin-top:6px; }
-  .savings .details { width:220px; padding:12px; border-radius:6px; background:#F7F8FA; text-align:center; }
-  .muted { color:#666; font-size:10px; }
+        /* TABLES */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
+        th, td { border: 0.5px solid #ddd; padding: 3px; text-align: center; }
+        th { background-color: #f5f5f5; font-weight: normal; }
+        .table-row-label { text-align: left; background-color: #e2e2e2; font-weight: bold; width: 120px; }
+        .table-row-label-light { text-align: left; background-color: #f5f5f5; width: 120px; }
 
-  .note { margin-top:10px; font-size:9px; color:#666; }
+        /* SUB TABLES GRID */
+        .sub-tables-container { display: flex; gap: 10px; align-items: stretch; margin-bottom: 5px; }
+        .box-grey { background-color: #f5f5f5; border-radius: 4px; padding: 4px; border: 0.5px solid #ddd; }
+        .box-header { text-align: center; font-weight: bold; margin-bottom: 3px; border-bottom: 1px solid #ccc; padding-bottom: 2px;}
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+        
+        /* TOTAL BOXES */
+        .totals-group { display: flex; gap: 8px; margin-left: auto; }
+        .total-box {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px 10px;
+            text-align: center;
+            min-width: 85px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .total-box-brand { border-color: var(--brand-primary); }
+        .total-box-label { font-size: 7px; color: #555; margin-bottom: 2px; }
+        .total-box-value { font-size: 14px; font-weight: bold; color: var(--brand-primary); display: flex; align-items: baseline; justify-content: center; gap: 2px;}
+        .euro-symbol { font-size: 8px; background: #bbb; color: white; border-radius: 50%; width: 12px; height: 12px; display: inline-flex; align-items: center; justify-content: center; }
 
-  /* Evitar cortes indeseados en impresión */
-  .no-break { page-break-inside: avoid; break-inside: avoid; }
-  table tr { page-break-inside: avoid; }
+        /* GRAPH SECTION */
+        .graph-section {
+            display: flex; gap: 10px; margin: 10px 0; padding: 5px 0;
+            border-top: 1px solid #eee; border-bottom: 1px solid #eee;
+            position: relative;
+        }
+        .graph-title { position: absolute; top: -5px; left: 0; font-size: 9px; color: #999; font-weight: bold; }
+        .canvas-container { flex-grow: 1; height: 130px; position: relative; }
+        .graph-side-info { width: 180px; display: flex; flex-col; justify-content: center; }
+        .legend { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; font-size: 6px; color: #777;}
+        .legend-item { display: flex; align-items: center; gap: 4px; }
+        .legend-color { width: 6px; height: 6px; border-radius: 50%; }
 
-  /* Ajustes específicos para impresión */
-  @media print {
-    html, body { background: #fff; }
-    .page {
-      margin: 0;
-      border: none;
-      box-shadow: none;
-      width: 210mm;
-      height: 297mm;
-      page-break-after: always;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-    /* Quitar sombras y suavizar bordes para impresoras */
-    .card { box-shadow: none; }
-  }
-</style>
+        /* AHORRO SECTION */
+        .ahorro-container { display: flex; align-items: center; justify-content: space-between; margin-top: 5px;}
+        .agent-info { font-size: 6.5px; line-height: 1.4; width: 220px; }
+        .donut-charts { display: flex; gap: 15px; }
+        .donut-wrapper { text-align: center; position: relative; width: 70px; }
+        .donut-label { font-size: 6.5px; color: #777; margin-bottom: 2px; }
+        .donut-pct { font-size: 8px; font-weight: bold; margin-bottom: 2px; color: var(--brand-primary); }
+        .donut-canvas { width: 60px; height: 60px; margin: 0 auto; }
+        .donut-icon { position: absolute; top: 40px; left: 50%; transform: translate(-50%, -50%); font-size: 10px; color: #999; }
+
+        /* FOOTER */
+        .footer { margin-top: auto; display: flex; justify-content: space-between; font-size: 6px; color: #999; padding-top: 10px; }
+    </style>
 </head>
 <body>
-<div class="page">
-  <div class="row header">
-    <div class="col col-7 logo">
-      <!-- Reemplaza src por tu logo o RefId resuelto -->
-      <img src="i_turn0image91" alt="Logo" />
-      <div>
-        <div style="font-weight:700; font-size:16px; color:#0B4A6F;">Comparativa energética</div>
-        <div class="small">Propuesta generada automáticamente</div>
-      </div>
-    </div>
-    <div class="col col-5 client">
-      <div class="offer-date">Día de la oferta: <strong id="offer_date">20/10/2025</strong></div>
-      <div style="margin-top:6px;"><strong id="client_name">Gorosetxe Sl</strong></div>
-      <div class="small" id="client_address">Ander Deuna Kalea, 2, BAJO 2bizkaia, Usansolo</div>
-    </div>
-  </div>
 
-  <div class="row" style="gap:12px; margin-top:8px;">
-    <!-- Left: Factura actual -->
-    <div class="col col-7">
-      <div class="card no-break">
-        <div class="card-title">Datos de factura actual</div>
+<div class="page-container flex flex-col">
+    <!-- HEADER -->
+    <div class="header flex justify-between align-center">
+        <div class="logo-container">
+            <!-- Inline SVG recreation of the OPTIMIZARE logo -->
+            <svg width="170" height="35" viewBox="0 0 180 40">
+                <path d="M 28 20 Q 80 -8 135 20" fill="transparent" stroke="#185633" stroke-width="2.5" stroke-linecap="round"/>
+                <text x="0" y="32" font-family="'Segoe UI', sans-serif" font-size="28" font-weight="bold" fill="#185633" letter-spacing="1.5">OPTIMIZARE</text>
+            </svg>
+        </div>
+        <div class="header-info">
+            <div class="header-info-row">
+                <span>Día de la oferta:</span>
+                <input type="text" class="text-left no-bg" value="05/11/2025">
+            </div>
+            <div class="header-info-row">
+                <span>Nombre:</span>
+                <input type="text" class="text-left no-bg font-bold" value="La Gruta De Valdebernardo Sl">
+            </div>
+            <div class="header-info-row">
+                <span>Dirección:</span>
+                <input type="text" class="text-left no-bg" value="Blvr. De José Prat, Nº 32, Local, Bmadrid, Madrid">
+            </div>
+            <div class="header-info-row">
+                <span>Cups:</span>
+                <input type="text" class="text-left no-bg" value="ES0022000007708610PD1P">
+            </div>
+        </div>
+    </div>
 
-        <!-- Tabla precios P1-P6 -->
-        <table aria-label="Precios P1-P6 factura actual">
-          <thead>
-            <tr>
-              <th class="left">Concepto</th>
-              <th>P1</th><th>P2</th><th>P3</th><th>P4</th><th>P5</th><th>P6</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="left small">Precios potencia (€/kW/día)</td>
-              <td id="fa_p1_pot">0,075777</td><td id="fa_p2_pot">0,050004</td><td id="fa_p3_pot">0,033596</td><td id="fa_p4_pot">0,032005</td><td id="fa_p5_pot">0,028297</td><td id="fa_p6_pot">0,025634</td>
-            </tr>
-            <tr>
-              <td class="left small">Precios energía mes facturación (€/kWh)</td>
-              <td id="fa_p1_e">0</td><td id="fa_p2_e">0</td><td id="fa_p3_e">0,156953</td><td id="fa_p4_e">0,136547</td><td id="fa_p5_e">0</td><td id="fa_p6_e">0,145722</td>
-            </tr>
-            <tr>
-              <td class="left small">Precios energía media último año (€/kWh)</td>
-              <td id="fa_p1_y">0,236486</td><td id="fa_p2_y">0,205477</td><td id="fa_p3_y">0,160226</td><td id="fa_p4_y">0,134203</td><td id="fa_p5_y">0,113076</td><td id="fa_p6_y">0,148035</td>
-            </tr>
-          </tbody>
+    <!-- SECTION 1: DATOS FACTURA ACTUAL -->
+    <div class="section" id="sec-1">
+        <div class="section-title">Datos de factura actual</div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 140px; text-align: left;">
+                        <input type="text" class="no-bg text-left" style="color:#777; font-size:6px;" value="31/08/25 - 30/09/25 · 30 días">
+                    </th>
+                    <th>P1</th><th>P2</th><th>P3</th><th>P4</th><th>P5</th><th>P6</th>
+                    <th>Descuento(%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="table-row-label">Precios potencia (€/kW/día)</td>
+                    <td><input type="text" value="0,094955"></td><td><input type="text" value="0,069183"></td>
+                    <td><input type="text" value="0,052774"></td><td><input type="text" value="0,051182"></td>
+                    <td><input type="text" value="0,047475"></td><td><input type="text" value="0,044812"></td>
+                    <td><input type="text" value="-"></td>
+                </tr>
+                <tr>
+                    <td class="table-row-label">Precios energía mes facturación (€/kWh)</td>
+                    <td><input type="text" value="0"></td><td><input type="text" value="0"></td>
+                    <td><input type="text" value="0,147453"></td><td><input type="text" value="0,147453"></td>
+                    <td><input type="text" value="0"></td><td><input type="text" value="0,147453"></td>
+                    <td><input type="text" value="-"></td>
+                </tr>
+                <tr>
+                    <td class="table-row-label">Precios energía media último año (€/kWh)</td>
+                    <td><input type="text" value="0,147453"></td><td><input type="text" value="0,147453"></td>
+                    <td><input type="text" value="0,147453"></td><td><input type="text" value="0,147453"></td>
+                    <td><input type="text" value="0,147453"></td><td><input type="text" value="0,147453"></td>
+                    <td><input type="text" value="-"></td>
+                </tr>
+            </tbody>
         </table>
 
-        <div style="display:flex; gap:12px; margin-top:8px;">
-          <div style="flex:1;">
-            <table>
-              <tr><td class="left small">Financiación Bono Social</td><td id="fa_bono" style="text-align:right;">0,38 €</td></tr>
-            </table>
-          </div>
-          <div style="width:160px;">
-            <table>
-              <tr><td class="left small">Alquiler de equipo (€)</td><td id="fa_rental" style="text-align:right;">7,89</td></tr>
-              <tr><td class="left small">Impuesto eléctrico (€)</td><td id="fa_tax" style="text-align:right;">88,25</td></tr>
-            </table>
-          </div>
-        </div>
+        <div class="sub-tables-container">
+            <!-- Otros Conceptos -->
+            <div style="width: 140px;">
+                <table style="margin:0;">
+                    <tr><td class="table-row-label-light text-center" colspan="2">Otros conceptos</td><td class="table-row-label-light text-center">Importe (€)</td></tr>
+                    <tr><td colspan="2" class="text-left">Financiación Bono Social</td><td><input type="text" id="s1-bono" value="0,38" class="calc-trigger"></td></tr>
+                    <tr><td colspan="2" class="text-left">Otros</td><td><input type="text" id="s1-otros" value="96,58" class="calc-trigger"></td></tr>
+                </table>
+            </div>
+            
+            <!-- Alquiler / Impuesto & Totales Parciales -->
+            <div class="flex-col" style="flex-grow: 1; gap: 4px;">
+                <div class="grid-2 text-center" style="background:#f5f5f5; border:0.5px solid #ddd; padding: 2px;">
+                    <div><div style="margin-bottom:2px">Alquiler de equipo (€)</div><input type="text" id="s1-alquiler" value="1,82" class="calc-trigger"></div>
+                    <div><div style="margin-bottom:2px">Impuesto eléctrico (€)</div><input type="text" id="s1-impuesto" value="66,00" class="calc-trigger"></div>
+                </div>
+                <div style="display: flex; border: 0.5px solid #ddd;">
+                    <div style="width: 100px; background: #e2e2e2; display: flex; flex-direction: column; justify-content: space-around; padding: 2px;">
+                        <div>Total energía</div>
+                        <div>Total potencia</div>
+                    </div>
+                    <div style="flex-grow: 1; display: flex; flex-direction: column;">
+                        <div class="grid-2 text-center" style="background:#f5f5f5; padding: 2px; border-bottom: 0.5px solid #ddd;">
+                            <div>Factura actual (€)</div><div>Anual estimado (€)</div>
+                        </div>
+                        <div class="grid-2" style="padding: 2px;">
+                            <input type="text" id="s1-energia-act" value="966,55" class="calc-trigger">
+                            <input type="text" id="s1-energia-anual" value="10.741,66" class="calc-trigger">
+                            <input type="text" id="s1-potencia-act" value="324,34" class="calc-trigger">
+                            <input type="text" id="s1-potencia-anual" value="3.946,17" class="calc-trigger">
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        <div class="totals">
-          <div class="total-card">
-            <div class="total-amount" id="fa_total_energy">1.380,78 €</div>
-            <div class="total-label">Total energía (factura actual)</div>
-          </div>
-          <div class="total-card">
-            <div class="total-amount" id="fa_total_power">345,24 €</div>
-            <div class="total-label">Total potencia (factura actual)</div>
-          </div>
+            <!-- Totales Grandes -->
+            <div class="totals-group">
+                <div class="total-box">
+                    <div class="total-box-label">Total factura</div>
+                    <div class="total-box-value"><input type="text" id="s1-total-act" readonly class="no-bg text-center text-brand font-bold" style="font-size: 14px; padding:0; width:65px;"> <span class="euro-symbol">€</span></div>
+                </div>
+                <div class="total-box total-box-brand">
+                    <div class="total-box-label">Total anual estimado</div>
+                    <div class="total-box-value"><input type="text" id="s1-total-anual" readonly class="no-bg text-center text-brand font-bold" style="font-size: 14px; padding:0; width:65px;"> <span class="euro-symbol">€</span></div>
+                </div>
+            </div>
         </div>
-
-      </div>
     </div>
 
-    <!-- Right: Oferta propuesta -->
-    <div class="col col-5">
-      <div class="card no-break">
-        <div class="card-title">Oferta propuesta</div>
+    <!-- GRAPH SECTION -->
+    <div class="graph-section">
+        <div class="graph-title">3.0TD</div>
+        <div class="canvas-container">
+            <canvas id="mainChart"></canvas>
+            
+            <!-- Hidden inputs for graph data -->
+            <div style="display: none;">
+                <input type="text" class="graph-data" data-type="mensual" value="0">
+                <input type="text" class="graph-data" data-type="mensual" value="0">
+                <input type="text" class="graph-data" data-type="mensual" value="2194">
+                <input type="text" class="graph-data" data-type="mensual" value="1942">
+                <input type="text" class="graph-data" data-type="mensual" value="377">
+                <input type="text" class="graph-data" data-type="mensual" value="2419">
 
-        <table aria-label="Precios P1-P6 oferta">
-          <thead>
-            <tr>
-              <th class="left">Concepto</th>
-              <th>P1</th><th>P2</th><th>P3</th><th>P4</th><th>P5</th><th>P6</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="left small">Precios potencia (€/kW/día)</td>
-              <td id="of_p1_pot">0,075777</td><td id="of_p2_pot">0,050005</td><td id="of_p3_pot">0,033596</td><td id="of_p4_pot">0,032004</td><td id="of_p5_pot">0,028296</td><td id="of_p6_pot">0,025634</td>
-            </tr>
-            <tr>
-              <td class="left small">Precios energía mes facturación (€/kWh)</td>
-              <td id="of_p1_e">0</td><td id="of_p2_e">0</td><td id="of_p3_e">0,115236</td><td id="of_p4_e">0,115236</td><td id="of_p5_e">0</td><td id="of_p6_e">0,115236</td>
-            </tr>
-            <tr>
-              <td class="left small">Precios energía media último año (€/kWh)</td>
-              <td id="of_p1_y">0,115236</td><td id="of_p2_y">0,115236</td><td id="of_p3_y">0,115236</td><td id="of_p4_y">0,115236</td><td id="of_p5_y">0,115236</td><td id="of_p6_y">0,115236</td>
-            </tr>
-          </tbody>
+                <input type="text" class="graph-data" data-type="anual" value="9589">
+                <input type="text" class="graph-data" data-type="anual" value="12339">
+                <input type="text" class="graph-data" data-type="anual" value="9052">
+                <input type="text" class="graph-data" data-type="anual" value="9264">
+                <input type="text" class="graph-data" data-type="anual" value="3772">
+                <input type="text" class="graph-data" data-type="anual" value="28832">
+            </div>
+        </div>
+        <div class="graph-side-info">
+            <div style="display:flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 4px; margin-bottom: 8px;">
+                <span style="color:#777">Compañía actual</span>
+                <input type="text" value="GLOBAL BIOSFERA PROTEC S.L" class="text-right no-bg" style="width: 110px;">
+            </div>
+            <div class="text-center" style="margin-bottom: 10px;">
+                <div style="color:#777; margin-bottom: 2px;">Consumo anual</div>
+                <div style="font-size: 16px; color: #999;"><input type="text" id="consumo-anual-total" readonly class="no-bg text-center" style="width: 45px; font-size: 16px; color: #999;"> <span style="font-size: 8px;">MWh</span></div>
+            </div>
+            <div class="legend">
+                <div class="legend-item"><div class="legend-color" style="background:#d0d0d0;"></div> Potencia contratada (kW)</div>
+                <div class="legend-item"><div class="legend-color" style="background:#4CAF50;"></div> Consumo anual (kWh)</div>
+                <div class="legend-item"><div class="legend-color" style="background:#185633;"></div> Consumo mensual (kWh)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 2: OFERTA -->
+    <div class="section" id="sec-2">
+        <div style="display:flex; justify-content: space-between; align-items: baseline;">
+            <div class="section-title">Oferta OPTIMIZARE Energy</div>
+            <div style="font-size: 5px; color:#999;">La estimación anual ha sido realizada utilizando datos históricos de consumo energético publicados del último año en SIPS y considerando la proyección anual del perfil de consumo así como los precios facilitados por el cliente en su última factura de luz.</div>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 140px;"></th>
+                    <th>P1</th><th>P2</th><th>P3</th><th>P4</th><th>P5</th><th>P6</th>
+                    <th>Descuento(%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="table-row-label">Precios potencia (€/kW/día)</td>
+                    <td><input type="text" value="0,073037"></td><td><input type="text" value="0,047265"></td>
+                    <td><input type="text" value="0,030856"></td><td><input type="text" value="0,029265"></td>
+                    <td><input type="text" value="0,025557"></td><td><input type="text" value="0,022894"></td>
+                    <td><input type="text" value="-"></td>
+                </tr>
+                <tr>
+                    <td class="table-row-label">Precios energía mes facturación (€/kWh)</td>
+                    <td><input type="text" value="0"></td><td><input type="text" value="0"></td>
+                    <td><input type="text" value="0,120236"></td><td><input type="text" value="0,120236"></td>
+                    <td><input type="text" value="0"></td><td><input type="text" value="0,120236"></td>
+                    <td><input type="text" value="-"></td>
+                </tr>
+                <tr>
+                    <td class="table-row-label">Precios energía media último año (€/kWh)</td>
+                    <td><input type="text" value="0,120236"></td><td><input type="text" value="0,120236"></td>
+                    <td><input type="text" value="0,120236"></td><td><input type="text" value="0,120236"></td>
+                    <td><input type="text" value="0,120236"></td><td><input type="text" value="0,120236"></td>
+                    <td><input type="text" value="-"></td>
+                </tr>
+            </tbody>
         </table>
 
-        <div style="display:flex; gap:12px; margin-top:8px;">
-          <div style="flex:1;">
-            <table>
-              <tr><td class="left small">Financiación Bono Social</td><td id="of_bono" style="text-align:right;">0,38 €</td></tr>
-            </table>
-          </div>
-          <div style="width:160px;">
-            <table>
-              <tr><td class="left small">Alquiler de equipo (€)</td><td id="of_rental" style="text-align:right;">7,89</td></tr>
-              <tr><td class="left small">Impuesto eléctrico (€)</td><td id="of_tax" style="text-align:right;">72,83</td></tr>
-            </table>
-          </div>
-        </div>
-
-        <div class="totals" style="margin-top:8px;">
-          <div class="total-card">
-            <div class="total-amount" id="of_total_energy">1.079,19 €</div>
-            <div class="total-label">Total energía (oferta)</div>
-          </div>
-          <div class="total-card">
-            <div class="total-amount" id="of_total_power">345,23 €</div>
-            <div class="total-label">Total potencia (oferta)</div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- Savings / cierre -->
-  <div class="row" style="margin-top:12px;">
-    <div class="col col-12">
-      <div class="card no-break">
-        <div class="card-title">Ahorro</div>
-        <div class="savings">
-          <div class="big">
-            <div style="display:flex; align-items:center; justify-content:space-between;">
-              <div>
-                <div class="muted">Ahorro de factura</div>
-                <div style="font-size:20px; font-weight:700; color:#222;" id="save_invoice_amount">383,62 €</div>
-              </div>
-              <div style="text-align:right;">
-                <div class="muted">Ahorro anual</div>
-                <div class="amount" id="save_annual_amount">8.776,45 €</div>
-              </div>
+        <div class="sub-tables-container">
+            <div style="width: 140px;">
+                <table style="margin:0;">
+                    <tr><td class="table-row-label-light text-center" colspan="2">Otros conceptos</td><td class="table-row-label-light text-center">Importe (€)</td></tr>
+                    <tr><td colspan="2" class="text-left">Financiación Bono Social</td><td><input type="text" id="s2-bono" value="0,38" class="calc-trigger"></td></tr>
+                    <tr><td colspan="2" class="text-left">Otros</td><td><input type="text" id="s2-otros" value="0,00" class="calc-trigger"></td></tr>
+                </table>
             </div>
-            <div style="margin-top:10px; display:flex; gap:12px;">
-              <div style="flex:1;">
-                <div class="muted">Porcentaje ahorro factura</div>
-                <div class="percent" id="save_invoice_pct">17%</div>
-              </div>
-              <div style="flex:1;">
-                <div class="muted">Porcentaje ahorro anual</div>
-                <div class="percent" id="save_annual_pct">25%</div>
-              </div>
+            
+            <div class="flex-col" style="flex-grow: 1; gap: 4px;">
+                <div class="grid-2 text-center" style="background:#f5f5f5; border:0.5px solid #ddd; padding: 2px;">
+                    <div><div style="margin-bottom:2px">Alquiler de equipo (€)</div><input type="text" id="s2-alquiler" value="1,82" class="calc-trigger"></div>
+                    <div><div style="margin-bottom:2px">Impuesto eléctrico (€)</div><input type="text" id="s2-impuesto" value="50,83" class="calc-trigger"></div>
+                </div>
+                <div style="display: flex; border: 0.5px solid #ddd;">
+                    <div style="width: 100px; background: #e2e2e2; display: flex; flex-direction: column; justify-content: space-around; padding: 2px;">
+                        <div>Total energía</div>
+                        <div>Total potencia</div>
+                    </div>
+                    <div style="flex-grow: 1; display: flex; flex-direction: column;">
+                        <div class="grid-2 text-center" style="background:#f5f5f5; padding: 2px; border-bottom: 0.5px solid #ddd;">
+                            <div>Factura actual (€)</div><div>Anual estimado (€)</div>
+                        </div>
+                        <div class="grid-2" style="padding: 2px;">
+                            <input type="text" id="s2-energia-act" value="788,15" class="calc-trigger">
+                            <input type="text" id="s2-energia-anual" value="8.758,95" class="calc-trigger">
+                            <input type="text" id="s2-potencia-act" value="205,99" class="calc-trigger">
+                            <input type="text" id="s2-potencia-anual" value="2.506,17" class="calc-trigger">
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="details">
-            <img src="i_turn0image31" alt="savings" style="height:36px;margin-bottom:8px;">
-            <div class="muted">Compañía propuesta</div>
-            <div style="font-weight:700; color:#0B4A6F; margin-top:6px;" id="offer_name">CANDELA PREMIUM FLEX 24H</div>
-          </div>
+            <div class="totals-group">
+                <div class="total-box">
+                    <div class="total-box-label">Total factura</div>
+                    <div class="total-box-value"><input type="text" id="s2-total-act" readonly class="no-bg text-center text-brand font-bold" style="font-size: 14px; padding:0; width:65px;"> <span class="euro-symbol">€</span></div>
+                </div>
+                <div class="total-box total-box-brand">
+                    <div class="total-box-label">Total anual estimado</div>
+                    <div class="total-box-value"><input type="text" id="s2-total-anual" readonly class="no-bg text-center text-brand font-bold" style="font-size: 14px; padding:0; width:65px;"> <span class="euro-symbol">€</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 3: AHORRO -->
+    <div class="section" style="margin-top: 15px;">
+        <div style="display:flex; justify-content: space-between; align-items: baseline;">
+            <div class="section-title">Ahorro</div>
+            <div style="font-size: 5px; color:#999; display: flex; gap: 10px; align-items: center;">
+                <span>Documentación para efectuar la modificación propuesta.</span>
+                <span>(1) DNI firmante - (2) Copia facturas - (3) Recibo bancario - (4) CIF de la empresa</span>
+                <span style="color: #555; font-size: 7px; margin-left: 20px;">Compañía propuesta</span>
+                <input type="text" value="CANDELA PREMIUM FLEX 24H - 7 - 15" class="no-bg font-bold" style="width: 180px;">
+            </div>
         </div>
 
-        <div class="note">Documentación para efectuar la modificación propuesta: DNI firmante; Copia facturas; Recibo bancario; CIF de la empresa.</div>
-      </div>
-    </div>
-  </div>
+        <div class="ahorro-container">
+            <div class="agent-info">
+                <div style="font-weight:bold; font-size:7px; margin-bottom: 5px;"><input type="text" class="no-bg text-left font-bold" value="CANDELA PREMIUM FLEX 24H"></div>
+                <div><span class="font-bold">Asesor energético:</span> <input type="text" class="no-bg text-left" value="Pablo Ignacio Molina Hernando" style="width:120px"></div>
+                <div><span class="font-bold">Contacto:</span> <input type="text" class="no-bg text-left" value="pmolina@optimizare.es" style="width:150px"></div>
+                <div><span class="font-bold">Delegación:</span> <input type="text" class="no-bg text-left" value="Calle de la Moneda 10, piso 11 B" style="width:160px"></div>
+            </div>
 
-  <div style="height:8px;"></div>
-  <div class="small" style="text-align:center; color:#999;">Propuesta válida durante 7 días desde la fecha de la propuesta</div>
+            <div class="donut-charts">
+                <div class="donut-wrapper">
+                    <div class="donut-label">Ahorro de<br>factura</div>
+                    <div class="donut-pct" id="lbl-ahorro-pct-act">28%</div>
+                    <canvas id="donut1" class="donut-canvas"></canvas>
+                    <div class="donut-icon">O</div>
+                </div>
+                <div class="donut-wrapper">
+                    <div class="donut-label">Ahorro<br>anual</div>
+                    <div class="donut-pct" id="lbl-ahorro-pct-anual">25%</div>
+                    <canvas id="donut2" class="donut-canvas"></canvas>
+                    <div class="donut-icon">O</div>
+                </div>
+            </div>
+
+            <div class="totals-group" style="margin-left: 20px;">
+                <div class="total-box">
+                    <div class="total-box-label text-left" style="font-size: 8px;">Factura actual<br>ahorro</div>
+                    <div class="total-box-value" style="font-size: 18px; margin-top: 5px;"><input type="text" id="ahorro-act" readonly class="no-bg text-center text-brand font-bold" style="font-size: 18px; padding:0; width:70px;"> <span class="euro-symbol">€</span></div>
+                </div>
+                <div class="total-box">
+                    <div class="total-box-label text-left" style="font-size: 8px;">Anual estimado<br>ahorro</div>
+                    <div class="total-box-value" style="font-size: 18px; margin-top: 5px;"><input type="text" id="ahorro-anual" readonly class="no-bg text-center text-brand font-bold" style="font-size: 18px; padding:0; width:80px;"> <span class="euro-symbol">€</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <div>Propuesta válida durante 7 (siete) días desde la fecha de la propuesta</div>
+        <div style="font-weight: bold; color: var(--brand-primary); font-size: 7px;">www.optimizare.es</div>
+        <div><input type="text" class="no-bg text-right" value="05/11/2025" style="width: 50px; font-size: 6px; color: #999;"></div>
+    </div>
 </div>
 
 <script>
-/* === Datos de ejemplo (reemplazar por tu JSON) === */
-window.DATA = {
-  offer_date: "20/10/2025",
-  client_name: "Gorosetxe Sl",
-  client_address: "Ander Deuna Kalea, 2, BAJO 2bizkaia, Usansolo",
-  factura_actual: {
-    prices: {
-      p1: { pot: "0,075777", e_month: "0", e_year: "0,236486" },
-      p2: { pot: "0,050004", e_month: "0", e_year: "0,205477" },
-      p3: { pot: "0,033596", e_month: "0,156953", e_year: "0,160226" },
-      p4: { pot: "0,032005", e_month: "0,136547", e_year: "0,134203" },
-      p5: { pot: "0,028297", e_month: "0", e_year: "0,113076" },
-      p6: { pot: "0,025634", e_month: "0,145722", e_year: "0,148035" }
-    },
-    bono: "0,38",
-    rental: "7,89",
-    tax: "88,25",
-    total_energy: "1.380,78",
-    total_power: "345,24",
-    total_invoice: "1.821,67",
-    total_annual: "35.472,10"
-  },
-  oferta: {
-    name: "CANDELA PREMIUM FLEX 24H",
-    prices: {
-      p1: { pot: "0,075777", e_month: "0", e_year: "0,115236" },
-      p2: { pot: "0,050005", e_month: "0", e_year: "0,115236" },
-      p3: { pot: "0,033596", e_month: "0,115236", e_year: "0,115236" },
-      p4: { pot: "0,032004", e_month: "0,115236", e_year: "0,115236" },
-      p5: { pot: "0,028296", e_month: "0", e_year: "0,115236" },
-      p6: { pot: "0,025634", e_month: "0", e_year: "0,115236" }
-    },
-    bono: "0,38",
-    rental: "7,89",
-    tax: "72,83",
-    total_energy: "1.079,19",
-    total_power: "345,23",
-    total_invoice: "1.821,67",
-    total_annual: "26.695,66"
-  },
-  savings: {
-    invoice_amount: "383,62",
-    annual_amount: "8.776,45",
-    invoice_pct: "17",
-    annual_pct: "25"
-  }
-};
+    // Variables de colores basadas en CSS
+    const brandPrimary = '#185633'; // Verde oscuro principal
+    const brandSecondary = '#4CAF50'; // Verde claro
 
-/* === Renderiza los datos en el DOM === */
-(function fill(){
-  const d = window.DATA;
-  document.getElementById('offer_date').textContent = d.offer_date;
-  document.getElementById('client_name').textContent = d.client_name;
-  document.getElementById('client_address').textContent = d.client_address;
+    // Utils for Spanish number formatting (e.g., "1.762,90")
+    function parseEsNum(str) {
+        if (!str) return 0;
+        return parseFloat(str.toString().replace(/\./g, '').replace(',', '.')) || 0;
+    }
 
-  const fa = d.factura_actual;
-  document.getElementById('fa_p1_pot').textContent = fa.prices.p1.pot;
-  document.getElementById('fa_p2_pot').textContent = fa.prices.p2.pot;
-  document.getElementById('fa_p3_pot').textContent = fa.prices.p3.pot;
-  document.getElementById('fa_p4_pot').textContent = fa.prices.p4.pot;
-  document.getElementById('fa_p5_pot').textContent = fa.prices.p5.pot;
-  document.getElementById('fa_p6_pot').textContent = fa.prices.p6.pot;
+    function formatEsNum(num, decimals = 2) {
+        return num.toLocaleString('es-ES', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+    }
 
-  document.getElementById('fa_p1_e').textContent = fa.prices.p1.e_month;
-  document.getElementById('fa_p2_e').textContent = fa.prices.p2.e_month;
-  document.getElementById('fa_p3_e').textContent = fa.prices.p3.e_month;
-  document.getElementById('fa_p4_e').textContent = fa.prices.p4.e_month;
-  document.getElementById('fa_p5_e').textContent = fa.prices.p5.e_month;
-  document.getElementById('fa_p6_e').textContent = fa.prices.p6.e_month;
+    // Initialize initial static total values
+    const initialData = {
+        s1TotalAct: 1762.90, s1TotalAnual: 19089.62,
+        s2TotalAct: 1267.09, s2TotalAnual: 14360.37,
+        ahorroAct: 495.81, ahorroAnual: 4729.24,
+        ahorroPctAct: 28, ahorroPctAnual: 25,
+        consumoAnualMwh: 72.85
+    };
 
-  document.getElementById('fa_p1_y').textContent = fa.prices.p1.e_year;
-  document.getElementById('fa_p2_y').textContent = fa.prices.p2.e_year;
-  document.getElementById('fa_p3_y').textContent = fa.prices.p3.e_year;
-  document.getElementById('fa_p4_y').textContent = fa.prices.p4.e_year;
-  document.getElementById('fa_p5_y').textContent = fa.prices.p5.e_year;
-  document.getElementById('fa_p6_y').textContent = fa.prices.p6.e_year;
+    let isInitialLoad = true;
 
-  document.getElementById('fa_bono').textContent = fa.bono + " €";
-  document.getElementById('fa_rental').textContent = fa.rental;
-  document.getElementById('fa_tax').textContent = fa.tax;
-  document.getElementById('fa_total_energy').textContent = fa.total_energy + " €";
-  document.getElementById('fa_total_power').textContent = fa.total_power + " €";
+    function calculateAll() {
+        // Section 1 Values
+        const s1EnergiaAct = parseEsNum(document.getElementById('s1-energia-act').value);
+        const s1PotenciaAct = parseEsNum(document.getElementById('s1-potencia-act').value);
+        const s1Bono = parseEsNum(document.getElementById('s1-bono').value);
+        const s1Otros = parseEsNum(document.getElementById('s1-otros').value);
+        const s1Alquiler = parseEsNum(document.getElementById('s1-alquiler').value);
+        const s1Impuesto = parseEsNum(document.getElementById('s1-impuesto').value);
+        
+        const s1EnergiaAnual = parseEsNum(document.getElementById('s1-energia-anual').value);
+        const s1PotenciaAnual = parseEsNum(document.getElementById('s1-potencia-anual').value);
 
-  const of = d.oferta;
-  document.getElementById('offer_name').textContent = of.name;
-  document.getElementById('of_p1_pot').textContent = of.prices.p1.pot;
-  document.getElementById('of_p2_pot').textContent = of.prices.p2.pot;
-  document.getElementById('of_p3_pot').textContent = of.prices.p3.pot;
-  document.getElementById('of_p4_pot').textContent = of.prices.p4.pot;
-  document.getElementById('of_p5_pot').textContent = of.prices.p5.pot;
-  document.getElementById('of_p6_pot').textContent = of.prices.p6.pot;
+        // Section 2 Values
+        const s2EnergiaAct = parseEsNum(document.getElementById('s2-energia-act').value);
+        const s2PotenciaAct = parseEsNum(document.getElementById('s2-potencia-act').value);
+        const s2Bono = parseEsNum(document.getElementById('s2-bono').value);
+        const s2Otros = parseEsNum(document.getElementById('s2-otros').value);
+        const s2Alquiler = parseEsNum(document.getElementById('s2-alquiler').value);
+        const s2Impuesto = parseEsNum(document.getElementById('s2-impuesto').value);
 
-  document.getElementById('of_p1_e').textContent = of.prices.p1.e_month;
-  document.getElementById('of_p2_e').textContent = of.prices.p2.e_month;
-  document.getElementById('of_p3_e').textContent = of.prices.p3.e_month;
-  document.getElementById('of_p4_e').textContent = of.prices.p4.e_month;
-  document.getElementById('of_p5_e').textContent = of.prices.p5.e_month;
-  document.getElementById('of_p6_e').textContent = of.prices.p6.e_month;
+        const s2EnergiaAnual = parseEsNum(document.getElementById('s2-energia-anual').value);
+        const s2PotenciaAnual = parseEsNum(document.getElementById('s2-potencia-anual').value);
 
-  document.getElementById('of_p1_y').textContent = of.prices.p1.e_year;
-  document.getElementById('of_p2_y').textContent = of.prices.p2.e_year;
-  document.getElementById('of_p3_y').textContent = of.prices.p3.e_year;
-  document.getElementById('of_p4_y').textContent = of.prices.p4.e_year;
-  document.getElementById('of_p5_y').textContent = of.prices.p5.e_year;
-  document.getElementById('of_p6_y').textContent = of.prices.p6.e_year;
+        let t1Act, t1Anual, t2Act, t2Anual;
 
-  document.getElementById('of_bono').textContent = of.bono + " €";
-  document.getElementById('of_rental').textContent = of.rental;
-  document.getElementById('of_tax').textContent = of.tax;
-  document.getElementById('of_total_energy').textContent = of.total_energy + " €";
-  document.getElementById('of_total_power').textContent = of.total_power + " €";
+        if (isInitialLoad) {
+            t1Act = initialData.s1TotalAct;
+            t1Anual = initialData.s1TotalAnual;
+            t2Act = initialData.s2TotalAct;
+            t2Anual = initialData.s2TotalAnual;
+        } else {
+            t1Act = s1EnergiaAct + s1PotenciaAct + s1Bono + s1Otros + s1Alquiler + s1Impuesto;
+            t1Anual = s1EnergiaAnual + s1PotenciaAnual + (s1Bono + s1Otros + s1Alquiler + s1Impuesto) * 12; 
+            
+            t2Act = s2EnergiaAct + s2PotenciaAct + s2Bono + s2Otros + s2Alquiler + s2Impuesto;
+            t2Anual = s2EnergiaAnual + s2PotenciaAnual + (s2Bono + s2Otros + s2Alquiler + s2Impuesto) * 12;
+        }
 
-  const s = d.savings;
-  document.getElementById('save_invoice_amount').textContent = s.invoice_amount + " €";
-  document.getElementById('save_annual_amount').textContent = s.annual_amount + " €";
-  document.getElementById('save_invoice_pct').textContent = s.invoice_pct + "%";
-  document.getElementById('save_annual_pct').textContent = s.annual_pct + "%";
-})();
+        // Update Totals Fields
+        document.getElementById('s1-total-act').value = formatEsNum(t1Act);
+        document.getElementById('s1-total-anual').value = formatEsNum(t1Anual);
+        document.getElementById('s2-total-act').value = formatEsNum(t2Act);
+        document.getElementById('s2-total-anual').value = formatEsNum(t2Anual);
+
+        // Calculate Savings
+        const ahorroAct = t1Act - t2Act;
+        const ahorroAnual = t1Anual - t2Anual;
+        const pctAct = t1Act > 0 ? (ahorroAct / t1Act) * 100 : 0;
+        const pctAnual = t1Anual > 0 ? (ahorroAnual / t1Anual) * 100 : 0;
+
+        document.getElementById('ahorro-act').value = formatEsNum(ahorroAct);
+        document.getElementById('ahorro-anual').value = formatEsNum(ahorroAnual);
+        
+        const displayPctAct = isInitialLoad ? initialData.ahorroPctAct : Math.round(pctAct);
+        const displayPctAnual = isInitialLoad ? initialData.ahorroPctAnual : Math.round(pctAnual);
+
+        document.getElementById('lbl-ahorro-pct-act').innerText = displayPctAct + '%';
+        document.getElementById('lbl-ahorro-pct-anual').innerText = displayPctAnual + '%';
+
+        // Draw Donuts
+        drawDonut('donut1', displayPctAct);
+        drawDonut('donut2', displayPctAnual);
+
+        // Calculate Graph Total
+        const anualInputs = document.querySelectorAll('.graph-data[data-type="anual"]');
+        let totalAnualGraph = 0;
+        anualInputs.forEach(input => totalAnualGraph += parseEsNum(input.value));
+        
+        const displayMwh = isInitialLoad ? initialData.consumoAnualMwh : (totalAnualGraph / 1000);
+        document.getElementById('consumo-anual-total').value = formatEsNum(displayMwh);
+
+        // Draw Main Chart
+        drawMainChart();
+        
+        isInitialLoad = false;
+    }
+
+    // Attach listeners
+    document.querySelectorAll('.calc-trigger').forEach(el => {
+        el.addEventListener('input', calculateAll);
+    });
+    document.querySelectorAll('.graph-data').forEach(el => {
+        el.addEventListener('input', calculateAll);
+    });
+
+    // Canvas logic for Main Chart
+    function drawMainChart() {
+        const canvas = document.getElementById('mainChart');
+        const ctx = canvas.getContext('2d');
+        
+        // Fit canvas to container exactly
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const margin = { top: 20, right: 30, bottom: 20, left: 30 };
+        const width = canvas.width - margin.left - margin.right;
+        const height = canvas.height - margin.top - margin.bottom;
+
+        // Data arrays
+        const inputsMensual = document.querySelectorAll('.graph-data[data-type="mensual"]');
+        const inputsAnual = document.querySelectorAll('.graph-data[data-type="anual"]');
+        
+        const dataMensual = Array.from(inputsMensual).map(el => parseEsNum(el.value));
+        const dataAnual = Array.from(inputsAnual).map(el => parseEsNum(el.value));
+        const dataPotencia = [30, 30, 30, 30, 30, 30];
+        const labels = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6'];
+
+        // Scales
+        const maxConsumo = 30000; // Y left
+        const maxPotencia = 35;   // Y right
+
+        // Draw Grid & Axes
+        ctx.strokeStyle = '#eaeaea';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        
+        for (let i = 0; i <= 5; i++) {
+            const y = margin.top + height - (height * i / 5);
+            ctx.moveTo(margin.left, y);
+            ctx.lineTo(canvas.width - margin.right, y);
+            
+            ctx.fillStyle = '#999';
+            ctx.font = '6px Arial';
+            ctx.textAlign = 'right';
+            const valLeft = (maxConsumo * i / 5);
+            ctx.fillText(valLeft >= 1000 ? (valLeft/1000) + ' K' : valLeft, margin.left - 5, y + 2);
+            
+            ctx.textAlign = 'left';
+            const valRight = Math.round(maxPotencia * i / 5);
+            ctx.fillText(valRight, canvas.width - margin.right + 5, y + 2);
+        }
+        ctx.stroke();
+
+        // Draw Bars (Potencia contratada - Grey)
+        const barWidth = width / 12;
+        ctx.fillStyle = '#e0e0e0';
+        dataPotencia.forEach((val, i) => {
+            const x = margin.left + (width / 5) * i;
+            const barH = (val / maxPotencia) * height;
+            const y = margin.top + height - barH;
+            ctx.fillRect(x - barWidth/2, y, barWidth, barH);
+            
+            ctx.fillStyle = '#333';
+            ctx.textAlign = 'center';
+            ctx.fillText(labels[i], x, canvas.height - 5);
+            
+            ctx.fillStyle = '#777';
+            ctx.fillText(val, x, y + 10);
+        });
+
+        // Draw Light Green Line (Consumo anual)
+        ctx.beginPath();
+        ctx.strokeStyle = brandSecondary;
+        ctx.lineWidth = 1.5;
+        dataAnual.forEach((val, i) => {
+            const x = margin.left + (width / 5) * i;
+            const y = margin.top + height - (val / maxConsumo) * height;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+
+        // Draw Dark Green Line (Consumo mensual)
+        ctx.beginPath();
+        ctx.strokeStyle = brandPrimary;
+        ctx.lineWidth = 1.5;
+        dataMensual.forEach((val, i) => {
+            const x = margin.left + (width / 5) * i;
+            const y = margin.top + height - (val / maxConsumo) * height;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+
+        // Draw Points & Values
+        dataAnual.forEach((val, i) => {
+            const x = margin.left + (width / 5) * i;
+            const y = margin.top + height - (val / maxConsumo) * height;
+            ctx.beginPath(); ctx.arc(x, y, 2.5, 0, 2*Math.PI); ctx.fillStyle = brandSecondary; ctx.fill();
+            
+            ctx.fillStyle = brandSecondary;
+            ctx.fillText(formatEsNum(val, 0), x, y - 5);
+        });
+
+        dataMensual.forEach((val, i) => {
+            const x = margin.left + (width / 5) * i;
+            const y = margin.top + height - (val / maxConsumo) * height;
+            ctx.beginPath(); ctx.arc(x, y, 2.5, 0, 2*Math.PI); ctx.fillStyle = brandPrimary; ctx.fill();
+            
+            if(val > 0) {
+                ctx.fillStyle = brandPrimary;
+                ctx.fillText(formatEsNum(val, 0), x, y + 10);
+            }
+        });
+    }
+
+    // Canvas logic for Donut Charts
+    function drawDonut(id, percentage) {
+        const canvas = document.getElementById(id);
+        const ctx = canvas.getContext('2d');
+        const size = 60;
+        canvas.width = size;
+        canvas.height = size;
+        const center = size / 2;
+        const radius = 22;
+        const lineWidth = 12;
+
+        ctx.clearRect(0, 0, size, size);
+
+        // Background grey circle
+        ctx.beginPath();
+        ctx.arc(center, center, radius, 0, 2 * Math.PI);
+        ctx.strokeStyle = '#e0e0e0';
+        ctx.lineWidth = lineWidth;
+        ctx.stroke();
+
+        // Brand green foreground arc
+        const startAngle = -0.5 * Math.PI; // Top
+        const endAngle = startAngle + (percentage / 100) * 2 * Math.PI;
+        
+        ctx.beginPath();
+        ctx.arc(center, center, radius, startAngle, endAngle);
+        ctx.strokeStyle = brandPrimary;
+        ctx.lineWidth = lineWidth;
+        ctx.lineCap = 'butt';
+        ctx.stroke();
+    }
+
+    // Initialize all on window load
+    window.onload = () => {
+        calculateAll();
+        
+        // Handle input formatting on blur for purely visual fields
+        document.querySelectorAll('input[type="text"]:not(.graph-data)').forEach(inp => {
+            inp.addEventListener('blur', function() {
+                if(/[\d]/.test(this.value) && !this.value.includes('Sl') && !this.value.includes('CANDELA') && !this.value.includes('Madrid') && !this.value.includes('ES0')) {
+                    const parsed = parseEsNum(this.value);
+                    if (this.value.includes('0,0') || this.value.includes('0,1')) {
+                         this.value = parsed.toLocaleString('es-ES', { minimumFractionDigits: 6, maximumFractionDigits: 6 });
+                    } else if (parsed > 0 || this.value === "0") {
+                         this.value = formatEsNum(parsed);
+                    }
+                }
+            });
+        });
+    };
 </script>
+
 </body>
 </html>
